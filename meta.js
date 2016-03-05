@@ -4,7 +4,7 @@ var inspect = require('util').inspect
 
 fs.createReadStream(process.argv[2])
   .pipe(readProp(['moov','udta','meta'], function (err, box) {
-    console.log(box)
+    console.log(box.buffer.toString())
   }))
 
 function readProp (props, cb) {
