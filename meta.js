@@ -2,10 +2,28 @@ var mp4 = require('mp4-stream')
 var fs = require('fs')
 var inspect = require('util').inspect
 
-var d = mp4.decode()
-d.on('box', function (headers) {
-  d.decode(function (box) {
-    console.log(inspect(box,0,10))
+fs.createReadStream(process.argv[2])
+  .pipe(readProp(['moov','udta','meta'], function (err, box) {
+    console.log(box)
+  }))
+
+function readProp (props, cb) {
+  var d = mp4.decode()
+  d.on('box', function onbox (hbox) {
+    if (hbox.type === props[0]) {
+      d.decode(function (box) {
+        if (props.length === 1) cb(null, box)
+        else if (box.otherBoxes) {
+          for (var i = 0; i < box.otherBoxes.length; i++) {
+            var b = box.otherBoxes[i]
+            if (b.type === props[1]) {
+              return readProp(props.slice(2), cb).end(b.buffer)
+            }
+          }
+          cb(null, undefined)
+        } else cb(null, undefined)
+      })
+    } else d.ignore()
   })
-})
-fs.createReadStream(process.argv[2]).pipe(d)
+  return d
+}
