@@ -1,0 +1,23 @@
+{
+  "name": "mp4-writer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/voltraco/mp4-writer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/voltraco/mp4-writer/issues"
+  },
+  "homepage": "https://github.com/voltraco/mp4-writer#readme",
+  "devDependencies": {
+    "mp4-parser": "^0.3.0"
+  }
+}
