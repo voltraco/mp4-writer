@@ -2,9 +2,10 @@ var mp4 = require('mp4-stream')
 var fs = require('fs')
 var inspect = require('util').inspect
 
-fs.createReadStream(process.argv[2])
-  .pipe(readProp(['moov','udta','meta'], function (err, box) {
+module.exports = function (cb) {
+  return readProp(['moov','udta','meta'], function (err, box) {
     var d = mp4.decode()
+    var meta = {}
     d.on('box', function (hbox) {
       d.decode(function (sbox) {
         var type = sbox.buffer.slice(4,8).toString()
@@ -13,17 +14,21 @@ fs.createReadStream(process.argv[2])
           var key = sbox.type
           var value
           if (key === 'trkn') {
-            value = sbox.buffer.readUInt32BE(12)
+            value = sbox.buffer.readUInt32BE(12+len)
           } else {
-            value = sbox.buffer.slice(12 + len).toString()
+            value = sbox.buffer.slice(12 + 3 + len).toString()
           }
-          console.log(key + ' => ' + value)
+          meta[key] = value
         }
       })
     })
     var sbuf = box.buffer.slice(box.buffer.readUInt32BE(4) + 8 + 4)
     d.end(sbuf)
-  }))
+    cb(null, meta, function (err, nmeta) {
+      console.log('set meta', nmeta)
+    })
+  })
+}
 
 function readProp (props, cb) {
   var d = mp4.decode()
